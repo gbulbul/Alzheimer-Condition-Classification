@@ -86,7 +86,7 @@ test_generator = val_test_datagen.flow_from_dataframe(
     target_size=target_size
 )
 # Create Model Structure
-img_size = (224, 224)
+img_size = target_size
 channels = 3
 img_shape = img_size+(channels,)
 class_count = len(list(train_generator.class_indices.keys())) # to define number of classes in dense layer
@@ -143,7 +143,8 @@ params={
 "batch_size": 128,
 "metric":'accuracy',
 }
-model = AlexNet(img_shape, 1)
+num_class=4
+model = AlexNet(img_shape, num_class)
 history = model.fit(train_generator,
     validation_data=test_generator, epochs=10, 
              callbacks = [early_stopping_callbacks] )
@@ -158,13 +159,13 @@ from tensorflow.keras.applications import resnet_v2
 transfer_net = resnet_v2.ResNet50V2(weights ='imagenet', include_top = False, input_shape = img_shape)
 transfer_net.trainable = False
 class ResNet(Sequential):
-     def __init__(self,params):
+     def __init__(self,params,num_class):
          super().__init__()
          self.add(transfer_net)
          self.add(Flatten())
          self.add(Dense(512, activation = params['activation_relu']))
          self.add(Dropout(0.5))
-         self.add(Dense(4, activation = params['activation_sigmoid']))
+         self.add(Dense(num_class, activation = params['activation_sigmoid']))
          self.summary()
          self.compile(optimizer = Adam(params["learning_rate"]), loss =params["loss"], metrics = params["metric"])
 params={
@@ -177,7 +178,8 @@ params={
 "batch_size": 128,
 "metric":'accuracy',
 }
-model=ResNet(params)
+num_class=4
+model=ResNet(params,num_class)
 history = model.fit(train_generator,
     validation_data=test_generator, epochs=10, callbacks = [early_stopping_callbacks]
                    )
@@ -188,7 +190,7 @@ preds = model.predict_generator(test_generator)
 y_pred = np.argmax(preds, axis=1)
 ########################CNN######################
 class simple_CNN(Sequential):
-    def __init__(self,params):
+    def __init__(self,params,num_class):
         super().__init__()
         self.add(layers.Conv2D(32, (3, 3), activation=params['activation'], input_shape= params["img_shape"]))
         self.add(layers.MaxPooling2D((2, 2)))
@@ -197,7 +199,7 @@ class simple_CNN(Sequential):
         self.add(layers.Conv2D(64, (3, 3), activation=params['activation']))
         self.add(layers.Flatten())
         self.add(layers.Dense(512, activation=params['activation'])),
-        self.add(layers.Dense(4,activation=params['activation']))
+        self.add(layers.Dense(num_class,activation=params['activation']))
         self.summary()
         self.compile(optimizer=params['optimizer'],
               loss=params['loss'],
@@ -212,7 +214,8 @@ params={
 "batch_size": 128,
 "metric":'accuracy',
 }
-model=simple_CNN(params)
+num_class=4
+model=simple_CNN(params,num_class)
 history = model.fit(train_generator,
     validation_data=test_generator, epochs=10, callbacks = [early_stopping_callbacks]
                    )
@@ -353,11 +356,7 @@ class XCEPTION(Sequential):
         self.add(layers.Dropout(0.2)),
         self.add(layers.Dense(num_classes, activation='sigmoid')),
         self.summary()
-        self.compile(
-    loss= 'categorical_crossentropy',
-    optimizer=keras.optimizers.RMSprop(lr=1e-4),
-    metrics=['accuracy']
-)
+        self.compile(Adamax(learning_rate= 0.001), loss= 'categorical_crossentropy', metrics= ['accuracy'])
 
 model = XCEPTION(img_shape, num_classes = 4)
 history = model.fit(train_generator,
