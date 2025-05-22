@@ -1,4 +1,4 @@
-Alzeihmer detection and classification are two different and essential tasks to take precautions for prevention and improve its treatment. DL and ML approaches are used to achieve both tasks. In this context, detection refers to discover whether a patient is demented or not. On the other hand, classification task aims to assign a patient into a correct group of alzeihmer to specify treatment while there are 4 groups defined.
+Alzeihmer classification is essential task to take precautions for prevention and improve its treatment. DL and ML approaches are used to achieve this task. In this context, classification task aims to assign a patient into a correct group of alzeihmer to specify treatment while there are 4 groups defined.
 
 ![333302871-c4a92c22-7aee-4195-b933-6ecdab837ad8](https://github.com/user-attachments/assets/943b22ba-387d-496c-9566-96fd0385285c)
 
